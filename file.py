@@ -1,16 +1,16 @@
 #!/opt/cloudera/parcels/Anaconda/bin/python
 # -*- coding: utf-8 -*-
 
-__author__ = 'Robert (Bob) L. Jones'
+__author__ = 'Robert (Bob) L. Jones, Ryan J Adalbert'
 __coauthor__ = 'N/A'
 __copyright__ = 'Copyright 2018, File'
-__credits__ = ['Robert (Bob) L. Jones']
+__credits__ = ['Robert (Bob) L. Jones, Ryan J Adalbert']
 __license__ = 'GPL'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __maintainer__ = 'Robert (Bob) L. Jones'
 __status__ = 'Development'
 __created_date__= 'Dec 5, 2018'
-__modified_date__= 'Dec 5, 2018'
+__modified_date__= 'Dec 14, 2018'
 
 '''
 FILE
@@ -99,29 +99,37 @@ REFERENCES
 
 # 3rd-party
 
-#from pathlib import Path, _windows_flavour, _posix_flavour
-from pathlib import Path
+# If Python version less than 3.4, then use pathlib2, otherwise use pathlib 
+import sys
+if sys.version_info < (3, 4):
+    import pathlib2 as pathlib
+else:
+    import pathlib
 
 # Custom
 
 
 ### Class Declaration ###
 
-class File(type(Path())):
+class File(object):
     '''
     This class:
+        * Wraps around pathlib2.Path class 
         * Encapulates file metadata;
         * Handles file operations.
     
     Properties:
-        All properties are inherited as is from the parent class "Path".
+        All properties are linked to the "Path" class from pathlib2.
         
     Return (object):
         An uninitialized 'File' class instance.
     '''
 
-    # '__new__' is the constructor and exists solely for creating the object.
-    def __new__(cls, *args, **kwargs):
+    # Override the __getattr__ magic method so that missing methods point to self.path class methods
+    def __getattr__(self, attr):
+        return eval("self.path.{}".format(attr))
+
+    def __init__(self, *args, **kwargs):
         
         '''
         The initializer for the class 'File' that exists solely for creating the object.
@@ -135,7 +143,7 @@ class File(type(Path())):
         '''
 
         extension = kwargs.get('extension', '') # The file's extension (e.g., ".csv")
-        dir = kwargs.get('dir', '')             # The path (absolute or relative) of the file's parent directory
+        dir1 = kwargs.get('dir', '')            # The path (absolute or relative) of the file's parent directory
 
         name = args[-1]
         name_part = name.split('/')[-1] or name.split('\\')[-1]
@@ -143,8 +151,9 @@ class File(type(Path())):
         name_extension = '.' + '.'.join(name_parts[1:len(name_parts)])
         
         new_name = name if extension == '' or extension == name_extension else name + extension
-        
-        return super(File, cls).__new__(cls, dir, new_name, **kwargs)
+
+        # Create path object with parameters 
+        self.path = pathlib.Path(dir1, new_name, **kwargs)
 
 
 if __name__ == '__main__':
@@ -156,7 +165,7 @@ if __name__ == '__main__':
     
     file1 = File('file1.csv', dir='~')
     print("file1 = File('file1.csv', dir='~')")
-    print("TEST 1a: file1.name=%s" % file1.name)
+    print("TEST 1a: file1.path=%s" % file1.path)
     print("TEST 1b: file1.stem=%s" % file1.stem)
     print("TEST 1c: file1.parent=%s" % file1.parent)
     print("TEST 1d: file1.suffix=%s" % file1.suffix)
