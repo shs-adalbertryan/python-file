@@ -10,7 +10,7 @@ __version__ = '0.0.2'
 __maintainer__ = 'Robert (Bob) L. Jones'
 __status__ = 'Development'
 __created_date__= 'Dec 5, 2018'
-__modified_date__= 'Dec 13, 2018'
+__modified_date__= 'Dec 14, 2018'
 
 '''
 FILE
@@ -101,7 +101,7 @@ REFERENCES
 
 # If Python version less than 3.4, then use pathlib2, otherwise use pathlib 
 import sys
-if sys.version_info.major < 3 and sys.version_info.minor < 4:
+if sys.version_info < (3, 4):
     import pathlib2 as pathlib
 else:
     import pathlib
@@ -169,7 +169,7 @@ if __name__ == '__main__':
     print("TEST 1b: file1.stem=%s" % file1.stem)
     print("TEST 1c: file1.parent=%s" % file1.parent)
     print("TEST 1d: file1.suffix=%s" % file1.suffix)
-    print("TEST 1e: file1=%s" % file1.resolve())
+    print("TEST 1e: file1=%s" % file1)
     print("")
     
     file2 = File('file2', extension='.csv', dir='.')
